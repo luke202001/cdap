@@ -311,7 +311,7 @@ class HydratorPlusPlusTopPanelCtrl {
   updateTimerLabelAndTitle(res) {
     // set default
     if (!res) {
-      this.timerLabel = 'Duration';
+      this.timerLabel = this.GLOBALS.en.hydrator.studio.PREVIEW.timerLabels.DURATION;
       this.queueStatus = '';
       return;
     }
@@ -320,12 +320,12 @@ class HydratorPlusPlusTopPanelCtrl {
     if (res.status === WAITING && res.positionInWaitingQueue > 0) {
       const runsAheadInQueue = res.positionInWaitingQueue;
       this.queueStatus = `${runsAheadInQueue} ${runsAheadInQueue === 1? 'run' : 'runs'} ahead in queue`;
-      this.timerLabel = `${runsAheadInQueue} Pending`;
+      this.timerLabel = `${runsAheadInQueue} ${this.GLOBALS.en.hydrator.studio.PREVIEW.timerLabels.PENDING}`;
     } else if ([ WAITING, ACQUIRED, INIT, RUNNING ].includes(res.status) && this.loadingLabel !== 'Stopping') {
-      this.timerLabel = 'Running';
+      this.timerLabel = this.GLOBALS.en.hydrator.studio.PREVIEW.timerLabels.RUNNING;
       this.queueStatus = '';
     } else {
-    this.timerLabel = 'Duration';
+    this.timerLabel = this.GLOBALS.en.hydrator.studio.PREVIEW.timerLabels.DURATION;
     this.queueStatus = '';
     }
   }
