@@ -15,12 +15,11 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import classnames from 'classnames';
 import withStyles, { WithStyles, StyleRules } from '@material-ui/core/styles/withStyles';
-import AbstractWidget from 'components/AbstractWidget';
 import ArrowRightIcon from '@material-ui/icons/ArrowRight';
 import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
 import IconButton from '@material-ui/core/IconButton';
+import Select from 'components/AbstractWidget/FormInputs/Select';
 
 const styles = (theme): StyleRules => ({
   root: {
@@ -32,13 +31,14 @@ const styles = (theme): StyleRules => ({
   select: {
     display: 'flex',
     alignItems: 'center',
+    width: '120px',
   },
 });
 
 interface IRecordNavigatorProps extends WithStyles<typeof styles> {
   selectedRecord: number;
   numRecords: number;
-  updateRecord: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  updateRecord: (val: string) => void;
   prevOperation: () => void;
   nextOperation: () => void;
 }
@@ -70,19 +70,26 @@ const RecordNavigatorBase: React.FC<IRecordNavigatorProps> = ({
   }, []);
 
   return (
-    <div className={classes.root}>
-      <IconButton onClick={!prevDisabled ? prevOperation : undefined} disabled={prevDisabled}>
+    <div className={classes.root} data-cy="record-navigator">
+      <IconButton
+        onClick={!prevDisabled ? prevOperation : undefined}
+        disabled={prevDisabled}
+        data-cy="previous-record-btn"
+      >
         <ArrowLeftIcon fontSize="large" />
       </IconButton>
-      <span className={classes.select}>
-        <AbstractWidget
+      <span className={classes.select} data-cy="record-dropdown">
+        <Select
           value={`Record ${selectedRecord}`}
-          type="select"
-          widgetProps={{ options: selectOptions }}
           onChange={(e) => updateRecord(e)}
+          widgetProps={{ options: selectOptions }}
         />
       </span>
-      <IconButton onClick={!nextDisabled ? nextOperation : undefined} disabled={nextDisabled}>
+      <IconButton
+        onClick={!nextDisabled ? nextOperation : undefined}
+        disabled={nextDisabled}
+        data-cy="next-record-btn"
+      >
         <ArrowRightIcon fontSize="large" />
       </IconButton>
     </div>

@@ -76,34 +76,28 @@ const VirtualScroll = ({
 
   const offsetY = startNode * childHeight;
 
-  useMemo(
-    () => {
-      const newList = renderList(visibleNodeCount, startNode);
-      if (Array.isArray(newList)) {
-        setList(newList);
+  useMemo(() => {
+    const newList = renderList(visibleNodeCount, startNode);
+    if (Array.isArray(newList)) {
+      setList(newList);
+    }
+    if (Array.isArray(newList) && newList.length < visibleNodeCount) {
+      const p = renderList(visibleChildCount, startNode);
+      if (p instanceof Promise && Array.isArray(list)) {
+        setPromise(p);
       }
-      if (Array.isArray(newList) && newList.length < visibleNodeCount) {
-        const p = renderList(visibleChildCount, startNode);
-        if (p instanceof Promise && Array.isArray(list)) {
-          setPromise(p);
-        }
-      }
-    },
-    [startNode, visibleNodeCount, renderList]
-  );
+    }
+  }, [startNode, visibleNodeCount, renderList]);
 
-  useEffect(
-    () => {
-      if (!promise) {
-        return;
-      }
-      promise.then((newList) => {
-        setList(newList);
-        setPromise(null);
-      });
-    },
-    [promise]
-  );
+  useEffect(() => {
+    if (!promise) {
+      return;
+    }
+    promise.then((newList) => {
+      setList(newList);
+      setPromise(null);
+    });
+  }, [promise]);
 
   const containerHeight =
     itmCount > visibleChildCount ? visibleChildCount * childHeight : itmCount * childHeight;

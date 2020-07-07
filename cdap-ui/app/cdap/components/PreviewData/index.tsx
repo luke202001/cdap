@@ -20,7 +20,6 @@ import { INode, fetchPreview, IRecords, IPreviewData } from 'components/PreviewD
 import If from 'components/If';
 import isEmpty from 'lodash/isEmpty';
 import Heading, { HeadingTypes } from 'components/Heading';
-import LoadingSVGCentered from 'components/LoadingSVGCentered';
 import { messageTextStyle } from 'components/PreviewData/DataView/Table';
 import PreviewTableContainer from 'components/PreviewData/DataView/TableContainer';
 import RecordContainer from 'components/PreviewData/RecordView/RecordContainer';
@@ -30,14 +29,20 @@ import T from 'i18n-react';
 import { extractErrorMessage } from 'services/helpers';
 import ToggleSwitchWidget from 'components/AbstractWidget/ToggleSwitchWidget';
 import classnames from 'classnames';
+import LoadingSVG from 'components/LoadingSVG';
 
 const I18N_PREFIX = 'features.PreviewData';
+// If number of schema fields > maxSchemaSize, show Record view by default
+const maxSchemaSize = 100;
 
 const styles = (): StyleRules => {
   return {
     messageText: messageTextStyle,
     headingContainer: {
-      paddingLeft: '10px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      paddingTop: '50px',
     },
     recordToggle: {
       position: 'absolute',
@@ -54,11 +59,16 @@ interface IPreviewDataViewProps extends WithStyles<typeof styles> {
   previewStatus: string;
 }
 
+enum PreviewMode {
+  Record = 'Record',
+  Table = 'Table',
+}
+
 export interface ITableData {
-  inputs: Array<[string, IRecords]>;
-  outputs: Array<[string, IRecords]>;
-  inputFieldCount: number;
-  outputFieldCount: number;
+  inputs?: Array<[string, IRecords]>;
+  outputs?: Array<[string, IRecords]>;
+  inputFieldCount?: number;
+  outputFieldCount?: number;
 }
 
 const PreviewDataViewBase: React.FC<IPreviewDataViewProps> = ({
@@ -72,16 +82,28 @@ const PreviewDataViewBase: React.FC<IPreviewDataViewProps> = ({
 
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewData, setPreviewData] = useState<IPreviewData>({});
+  const [tableData, setTableData] = useState<ITableData>({});
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('Table');
+  const [viewMode, setViewMode] = useState(PreviewMode.Table);
 
   const widgetProps = {
-    on: { value: 'Record', label: 'Record' },
-    off: { value: 'Table', label: 'Table' },
+    on: { value: PreviewMode.Record, label: PreviewMode.Record },
+    off: { value: PreviewMode.Table, label: PreviewMode.Table },
   };
 
   const updatePreviewCb = (updatedPreview: IPreviewData) => {
     setPreviewData(updatedPreview);
+    const parsedData = getTableData(updatedPreview);
+    setTableData(parsedData);
+    setViewMode(
+      parsedData.inputFieldCount > maxSchemaSize || parsedData.outputFieldCount > maxSchemaSize
+        ? PreviewMode.Record
+        : PreviewMode.Table
+    );
+  };
+
+  const errorCb = (err: any) => {
+    setError(extractErrorMessage(err));
   };
 
   useEffect(() => {
@@ -97,19 +119,18 @@ const PreviewDataViewBase: React.FC<IPreviewDataViewProps> = ({
     }
   }, [previewId]);
 
-  const getTableData = () => {
+  const getTableData = (prevData: IPreviewData) => {
     let inputs = [];
     let outputs = [];
 
-    if (!isEmpty(previewData)) {
-      if (!isEmpty(previewData.input) && !selectedNode.isSource) {
-        inputs = Object.entries(previewData.input);
+    if (!isEmpty(prevData)) {
+      if (!isEmpty(prevData.input) && !selectedNode.isSource) {
+        inputs = Object.entries(prevData.input);
       }
-      if (!isEmpty(previewData.output) && !selectedNode.isSink) {
-        outputs = Object.entries(previewData.output);
+      if (!isEmpty(prevData.output) && !selectedNode.isSink) {
+        outputs = Object.entries(prevData.output);
       }
     }
-
     const fieldCountReducer = (maxCount: number, [tableName, tableInfo]) => {
       const fieldCount = tableInfo.schemaFields.length;
       return fieldCount > maxCount ? fieldCount : maxCount;
@@ -120,12 +141,30 @@ const PreviewDataViewBase: React.FC<IPreviewDataViewProps> = ({
     return { inputs, outputs, inputFieldCount, outputFieldCount };
   };
 
-  const tableData: ITableData = getTableData();
+  const getContent = () => {
+    // preview has not been run yet
+    if (!previewId) {
+      return noPreviewDataMsg(classes);
+    } else if (previewLoading) {
+      // preview data available and getting fetched
+      return loadingMsg(classes);
+    } else if (error) {
+      // i.e. if current preview got overwritten by a more recent preview run
+      return errorMsg(classes);
+    } else if (!isEmpty(previewData)) {
+      // return either table or record container depending on schema size
+      return getContainer();
+    }
+  };
 
   const loadingMsg = (cls) => (
-    <div className={classes.headingContainer}>
-      <Heading type={HeadingTypes.h3} label={'Fetching preview data'} className={cls.messageText} />
-      <LoadingSVGCentered />
+    <div className={cls.headingContainer}>
+      <Heading
+        type={HeadingTypes.h3}
+        label={T.translate(`${I18N_PREFIX}.loading`)}
+        className={cls.messageText}
+      />
+      <LoadingSVG />
     </div>
   );
 
@@ -139,37 +178,47 @@ const PreviewDataViewBase: React.FC<IPreviewDataViewProps> = ({
     </div>
   );
 
-  const showRecordView = tableData.inputFieldCount >= 100 || tableData.outputFieldCount >= 100;
-
-  return (
-    <div>
-      <If condition={!previewId}>{noPreviewDataMsg(classes)}</If>
-      <If condition={previewLoading}>{loadingMsg(classes)}</If>
-
-      <If condition={!previewLoading && previewId && !isEmpty(previewData) && viewMode === 'Table'}>
-        <span className={classes.recordToggle}>
-          <ToggleSwitchWidget onChange={setViewMode} value={viewMode} widgetProps={widgetProps} />
-        </span>
-        <PreviewTableContainer
-          tableData={tableData}
-          selectedNode={selectedNode}
-          previewStatus={previewStatus}
-        />
-      </If>
-      <If
-        condition={!previewLoading && previewId && !isEmpty(previewData) && viewMode === 'Record'}
-      >
-        <span className={classes.recordToggle}>
-          <ToggleSwitchWidget onChange={setViewMode} value={viewMode} widgetProps={widgetProps} />
-        </span>
-        <RecordContainer
-          tableData={tableData}
-          selectedNode={selectedNode}
-          previewStatus={previewStatus}
-        />
-      </If>
+  const errorMsg = (cls) => (
+    <div className={classnames('text-danger', cls.headingContainer)}>
+      <Heading
+        type={HeadingTypes.h3}
+        label={T.translate(`${I18N_PREFIX}.errorHeader`)}
+        className={cls.messageText}
+      />
+      <span>{typeof error === 'string' ? error : JSON.stringify(error)}</span>
     </div>
   );
+
+  const getContainer = () => {
+    return (
+      <React.Fragment>
+        <span className={classes.recordToggle}>
+          <ToggleSwitchWidget
+            onChange={setViewMode}
+            value={viewMode}
+            widgetProps={widgetProps}
+            disabled={selectedNode.isCondition}
+          />
+        </span>
+        <If condition={viewMode === PreviewMode.Table}>
+          <PreviewTableContainer
+            tableData={tableData}
+            selectedNode={selectedNode}
+            previewStatus={previewStatus}
+          />
+        </If>
+        <If condition={viewMode === PreviewMode.Record}>
+          <RecordContainer
+            tableData={tableData}
+            selectedNode={selectedNode}
+            previewStatus={previewStatus}
+          />
+        </If>
+      </React.Fragment>
+    );
+  };
+
+  return <div>{getContent()}</div>;
 };
 
 const PreviewDataViewStyled = withStyles(styles)(PreviewDataViewBase);
