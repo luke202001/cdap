@@ -480,6 +480,65 @@ function extractErrorMessage(errObj) {
   return objectQuery(errObj, 'response', 'message') || objectQuery(errObj, 'response');
 }
 
+function connectWithStore(store, WrappedComponent, ...args) {
+  const ConnectedWrappedComponent = connect(...args)(WrappedComponent);
+  // eslint-disable-next-line react/display-name
+  return function(props) {
+    return <ConnectedWrappedComponent {...props} store={store} />;
+  };
+}
+/**
+ * This function formats the graphQl errors by error type
+ * { errorType: ['message1', 'message2'] ....} will be
+ * the format of categorized errors.
+ */
+function categorizeGraphQlErrors(error) {
+  const GENERIC_ERROR_ORIGIN = 'generic';
+  const graphQLErrors = objectQuery(error, 'graphQLErrors') || [];
+  const networkErrors = objectQuery(error, 'networkError') || [];
+  const errorsByOrigin = {};
+  if (graphQLErrors.length === 0 && networkErrors.length === 0 && error) {
+    errorsByOrigin[GENERIC_ERROR_ORIGIN] = error.message;
+  }
+ 
+  graphQLErrors.forEach(error => {
+    const errorOrigin = objectQuery(error, 'extensions', 'exception', 'errorOrigin') || GENERIC_ERROR_ORIGIN;
+    if (errorsByOrigin.hasOwnProperty(errorOrigin)) {
+      errorsByOrigin[errorOrigin].push(error.message);
+    }
+    else {
+      errorsByOrigin[errorOrigin] = [error.message];
+    }
+  });
+  // Categorize all graphQL network errors with type 'network'
+  networkErrors.forEach(error => {
+    if (errorsByOrigin.hasOwnProperty('network')) {
+      errorsByOrigin['network'].push(error.message);
+    } else {
+      errorsByOrigin['network'] = [error.message];
+    }
+  });
+  return errorsByOrigin;
+}
+
+function dumbestClone(jsonObj) {
+  let result;
+  try {
+    result = JSON.parse(JSON.stringify(jsonObj));
+  } catch (e) {
+    return jsonObj;
+  }
+  return result;
+}
+
+function getExperimentValue(experimentID) {
+  return window.localStorage.getItem(`${experimentID}-value`);
+}
+
+function isExperimentEnabled(experimentID) {
+  return window.localStorage.getItem(`${experimentID}`) === 'true';
+}
+
 export {
   objectQuery,
   convertBytesToHumanReadable,
@@ -520,4 +579,9 @@ export {
   removeEmptyJsonValues,
   handlePageLevelError,
   extractErrorMessage,
+  connectWithStore,
+  dumbestClone,
+  categorizeGraphQlErrors,
+  getExperimentValue,
+  isExperimentEnabled,
 };
