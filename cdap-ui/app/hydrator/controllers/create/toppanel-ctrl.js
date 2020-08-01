@@ -672,7 +672,7 @@ class HydratorPlusPlusTopPanelCtrl {
             this.pollId = null;
 
             let pipelinePreviewPlaceholder = 'The preview of the pipeline';
-            let pipelineName = this.HydratorPlusPlusConfigStore.getName();
+            const pipelineName = this.HydratorPlusPlusConfigStore.getName();
             if (pipelineName.length > 0) {
               pipelinePreviewPlaceholder += ` "${pipelineName}"`;
             }
