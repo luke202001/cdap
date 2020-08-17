@@ -60,7 +60,7 @@ public class PreviewConfigModule extends AbstractModule {
       .forEach(key -> previewCConf.set(key, localhost));
 
     Path previewDataDir = Paths.get(cConf.get(Constants.CFG_LOCAL_DATA_DIR), "preview").toAbsolutePath();
-    Path previewDir = null;
+    Path previewDir;
     try {
       previewDir = Files.createDirectories(previewDataDir);
     } catch (IOException e) {

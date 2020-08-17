@@ -64,7 +64,6 @@ import org.apache.twill.internal.ServiceListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Set;
@@ -91,15 +90,15 @@ public class DefaultPreviewRunnerManager extends AbstractIdleService implements 
   private PreviewRunner runner;
 
   @Inject
-  DefaultPreviewRunnerManager(
-    @Named(PreviewConfigModule.PREVIEW_CCONF) CConfiguration previewCConf,
-    @Named(PreviewConfigModule.PREVIEW_HCONF) Configuration previewHConf,
-    @Named(PreviewConfigModule.PREVIEW_SCONF) SConfiguration previewSConf,
-    SecureStore secureStore, DiscoveryService discoveryService,
-    @Named(DataSetsModules.BASE_DATASET_FRAMEWORK) DatasetFramework datasetFramework,
-    TransactionSystemClient transactionSystemClient,
-    @Named(PreviewConfigModule.PREVIEW_LEVEL_DB) LevelDBTableService previewLevelDBTableService,
-    PreviewRunnerModule previewRunnerModule, PreviewRunnerServiceFactory previewRunnerServiceFactory) {
+  DefaultPreviewRunnerManager(@Named(PreviewConfigModule.PREVIEW_CCONF) CConfiguration previewCConf,
+                              @Named(PreviewConfigModule.PREVIEW_HCONF) Configuration previewHConf,
+                              @Named(PreviewConfigModule.PREVIEW_SCONF) SConfiguration previewSConf,
+                              SecureStore secureStore, DiscoveryService discoveryService,
+                              @Named(DataSetsModules.BASE_DATASET_FRAMEWORK) DatasetFramework datasetFramework,
+                              TransactionSystemClient transactionSystemClient,
+                              PreviewRunnerModule previewRunnerModule,
+                              @Named(PreviewConfigModule.PREVIEW_LEVEL_DB) LevelDBTableService previewLevelDBService,
+                              PreviewRunnerServiceFactory previewRunnerServiceFactory) {
     this.previewCConf = previewCConf;
     this.previewHConf = previewHConf;
     this.previewSConf = previewSConf;
@@ -110,7 +109,7 @@ public class DefaultPreviewRunnerManager extends AbstractIdleService implements 
     this.maxConcurrentPreviews = previewCConf.getInt(Constants.Preview.POLLER_COUNT, 10);
     this.previewRunnerServices = ConcurrentHashMap.newKeySet();
     this.previewRunnerModule = previewRunnerModule;
-    this.previewLevelDBTableService = previewLevelDBTableService;
+    this.previewLevelDBTableService = previewLevelDBService;
     this.previewRunnerServiceFactory = previewRunnerServiceFactory;
   }
 
@@ -186,7 +185,7 @@ public class DefaultPreviewRunnerManager extends AbstractIdleService implements 
    * Create injector for the given application id.
    */
   @VisibleForTesting
-  Injector createPreviewInjector() throws IOException {
+  Injector createPreviewInjector() {
     return Guice.createInjector(
       new ConfigModule(previewCConf, previewHConf, previewSConf),
       new IOModule(),

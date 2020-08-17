@@ -59,7 +59,6 @@ public class PreviewRunnerManagerModule extends RuntimeModule {
         bind(DatasetFramework.class)
           .annotatedWith(Names.named(DataSetsModules.BASE_DATASET_FRAMEWORK))
           .to(RemoteDatasetFramework.class);
-        bind(PreviewRunnerModule.class).to(DefaultPreviewRunnerModule.class);
         bind(DefaultPreviewRunnerManager.class).in(Scopes.SINGLETON);
         bind(PreviewRunStopper.class).to(DefaultPreviewRunnerManager.class);
         expose(PreviewRunStopper.class);
@@ -91,7 +90,6 @@ public class PreviewRunnerManagerModule extends RuntimeModule {
         bind(DatasetFramework.class)
           .annotatedWith(Names.named(DataSetsModules.BASE_DATASET_FRAMEWORK))
           .to(RemoteDatasetFramework.class);
-        bind(PreviewRunnerModule.class).to(DefaultPreviewRunnerModule.class);
 
         bind(DefaultPreviewRunnerManager.class).in(Scopes.SINGLETON);
         bind(PreviewRunnerManager.class).to(DefaultPreviewRunnerManager.class);
