@@ -58,11 +58,10 @@ export const styles = (theme): StyleRules => ({
   },
   cell: {
     textAlign: 'left',
-    height: '40px',
     lineHeight: '40px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    padding: '0px 10px',
+    padding: '0 10px',
   },
 
   // TO DO: Currently the width is fixed. Future plan is to let users vary the column widths
@@ -117,6 +116,7 @@ const DataTableView: React.FC<IDataTableProps> = ({
   };
   const renderList = (visibleNodeCount: number, startNode: number) => {
     return records.slice(startNode, startNode + visibleNodeCount).map((record, i) => {
+      const rowIndex = startNode + i + 1;
       return (
         <React.Fragment>
           <Grid
@@ -124,11 +124,11 @@ const DataTableView: React.FC<IDataTableProps> = ({
             direction="row"
             wrap="nowrap"
             justify="space-evenly"
-            className={classnames(classes.row, { oddRow: (i + startNode + 1) % 2 })}
+            className={classnames(classes.row, { oddRow: rowIndex % 2 })}
             key={`gridrow-${i}`}
           >
             <Grid item className={classnames(classes.cell, classes.indexCell)}>
-              {i + 1 + startNode}
+              {rowIndex}
             </Grid>
             {headers.map((fieldName, k) => {
               const processedValue = format(record[fieldName]);
