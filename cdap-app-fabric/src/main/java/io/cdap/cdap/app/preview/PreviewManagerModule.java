@@ -16,27 +16,22 @@
 
 package io.cdap.cdap.app.preview;
 
-import com.google.inject.Exposed;
 import com.google.inject.PrivateModule;
-import com.google.inject.Provides;
 import com.google.inject.Scopes;
-import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
-import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import io.cdap.cdap.app.store.preview.PreviewStore;
-import io.cdap.cdap.common.conf.CConfiguration;
 import io.cdap.cdap.data.runtime.DataSetsModules;
 import io.cdap.cdap.data2.datafabric.dataset.RemoteDatasetFramework;
 import io.cdap.cdap.data2.dataset2.DatasetDefinitionRegistryFactory;
 import io.cdap.cdap.data2.dataset2.DatasetFramework;
 import io.cdap.cdap.data2.dataset2.DefaultDatasetDefinitionRegistryFactory;
-import io.cdap.cdap.data2.dataset2.lib.table.leveldb.LevelDBTableService;
 import io.cdap.cdap.gateway.handlers.CommonHandlers;
 import io.cdap.cdap.gateway.handlers.preview.PreviewHttpHandler;
 import io.cdap.cdap.gateway.handlers.preview.PreviewHttpHandlerInternal;
 import io.cdap.cdap.internal.app.preview.DefaultPreviewManager;
 import io.cdap.cdap.internal.app.preview.DefaultPreviewRequestQueue;
+import io.cdap.cdap.internal.app.preview.PreviewDataCleanupService;
 import io.cdap.cdap.internal.app.store.preview.DefaultPreviewStore;
 import io.cdap.http.HttpHandler;
 
@@ -54,6 +49,11 @@ public class PreviewManagerModule extends PrivateModule {
       .annotatedWith(Names.named(DataSetsModules.BASE_DATASET_FRAMEWORK))
       .to(RemoteDatasetFramework.class);
 
+    bind(PreviewStore.class).to(DefaultPreviewStore.class).in(Scopes.SINGLETON);
+    bind(PreviewRequestQueue.class).to(DefaultPreviewRequestQueue.class).in(Scopes.SINGLETON);
+    expose(PreviewRequestQueue.class);
+
+    bind(PreviewDataCleanupService.class).in(Scopes.SINGLETON);
     bind(PreviewManager.class).to(DefaultPreviewManager.class).in(Scopes.SINGLETON);
 
     Multibinder<HttpHandler> handlerBinder = Multibinder.newSetBinder(binder(), HttpHandler.class);
@@ -63,14 +63,5 @@ public class PreviewManagerModule extends PrivateModule {
 
     bind(PreviewHttpServer.class);
     expose(PreviewHttpServer.class);
-  }
-
-  @Provides
-  @Singleton
-  @Exposed
-  PreviewRequestQueue getPreviewRequestQueue(@Named(PreviewConfigModule.PREVIEW_CCONF) CConfiguration previewCConf,
-                                             @Named(PreviewConfigModule.PREVIEW_LEVEL_DB) LevelDBTableService service) {
-    PreviewStore store = new DefaultPreviewStore(service);
-    return new DefaultPreviewRequestQueue(previewCConf, store);
   }
 }
