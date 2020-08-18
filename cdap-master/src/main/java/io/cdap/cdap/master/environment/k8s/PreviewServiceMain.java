@@ -25,7 +25,7 @@ import io.cdap.cdap.app.guice.AppFabricServiceRuntimeModule;
 import io.cdap.cdap.app.guice.AuthorizationModule;
 import io.cdap.cdap.app.guice.ProgramRunnerRuntimeModule;
 import io.cdap.cdap.app.guice.UnsupportedExploreClient;
-import io.cdap.cdap.app.preview.PreviewHttpModule;
+import io.cdap.cdap.app.preview.PreviewManagerModule;
 import io.cdap.cdap.app.preview.PreviewHttpServer;
 import io.cdap.cdap.app.preview.PreviewRunnerManager;
 import io.cdap.cdap.app.preview.PreviewRunnerManagerModule;
@@ -68,7 +68,7 @@ public class PreviewServiceMain extends AbstractServiceMain<EnvironmentOptions> 
   @Override
   protected List<Module> getServiceModules(MasterEnvironment masterEnv, EnvironmentOptions options) {
     return Arrays.asList(
-      new PreviewHttpModule(),
+      new PreviewManagerModule(),
       new PreviewRunnerManagerModule().getDistributedModules(),
       new AbstractModule() {
         @Override

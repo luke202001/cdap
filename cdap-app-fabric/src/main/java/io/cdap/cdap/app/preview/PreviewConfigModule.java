@@ -47,7 +47,6 @@ public class PreviewConfigModule extends AbstractModule {
   private final CConfiguration previewCConf;
   private final Configuration previewHConf;
   private final SConfiguration previewSConf;
-  private final LevelDBTableService previewLevelDBTableService;
 
   public PreviewConfigModule(CConfiguration cConf, Configuration hConf, SConfiguration sConf) {
     previewCConf = CConfiguration.copy(cConf);
@@ -86,9 +85,6 @@ public class PreviewConfigModule extends AbstractModule {
                      previewDir.resolve("fs").toUri().toString());
 
     previewSConf = SConfiguration.copy(sConf);
-
-    this.previewLevelDBTableService = new LevelDBTableService();
-    this.previewLevelDBTableService.setConfiguration(previewCConf);
   }
 
   @Override
@@ -97,7 +93,9 @@ public class PreviewConfigModule extends AbstractModule {
     bind(Configuration.class).annotatedWith(Names.named(PREVIEW_HCONF)).toInstance(previewHConf);
     bind(SConfiguration.class).annotatedWith(Names.named(PREVIEW_SCONF)).toInstance(previewSConf);
 
-    bind(LevelDBTableService.class)
-      .annotatedWith(Names.named(PREVIEW_LEVEL_DB)).toInstance(previewLevelDBTableService);
+    LevelDBTableService levelDBTableService = new LevelDBTableService();
+    levelDBTableService.setConfiguration(previewCConf);
+
+    bind(LevelDBTableService.class).annotatedWith(Names.named(PREVIEW_LEVEL_DB)).toInstance(levelDBTableService);
   }
 }

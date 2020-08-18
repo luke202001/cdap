@@ -21,6 +21,7 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
+import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import io.cdap.cdap.app.store.preview.PreviewStore;
@@ -31,15 +32,18 @@ import io.cdap.cdap.data2.dataset2.DatasetDefinitionRegistryFactory;
 import io.cdap.cdap.data2.dataset2.DatasetFramework;
 import io.cdap.cdap.data2.dataset2.DefaultDatasetDefinitionRegistryFactory;
 import io.cdap.cdap.data2.dataset2.lib.table.leveldb.LevelDBTableService;
+import io.cdap.cdap.gateway.handlers.CommonHandlers;
 import io.cdap.cdap.gateway.handlers.preview.PreviewHttpHandler;
+import io.cdap.cdap.gateway.handlers.preview.PreviewHttpHandlerInternal;
 import io.cdap.cdap.internal.app.preview.DefaultPreviewManager;
 import io.cdap.cdap.internal.app.preview.DefaultPreviewRequestQueue;
 import io.cdap.cdap.internal.app.store.preview.DefaultPreviewStore;
+import io.cdap.http.HttpHandler;
 
 /**
- * Provides bindings required create the {@link PreviewHttpHandler}.
+ * Provides bindings for {@link PreviewManager}.
  */
-public class PreviewHttpModule extends PrivateModule {
+public class PreviewManagerModule extends PrivateModule {
 
   @Override
   protected void configure() {
@@ -51,15 +55,21 @@ public class PreviewHttpModule extends PrivateModule {
       .to(RemoteDatasetFramework.class);
 
     bind(PreviewManager.class).to(DefaultPreviewManager.class).in(Scopes.SINGLETON);
-    expose(PreviewManager.class);
+
+    Multibinder<HttpHandler> handlerBinder = Multibinder.newSetBinder(binder(), HttpHandler.class);
+    handlerBinder.addBinding().to(PreviewHttpHandler.class);
+    handlerBinder.addBinding().to(PreviewHttpHandlerInternal.class);
+    CommonHandlers.add(handlerBinder);
+
+    bind(PreviewHttpServer.class);
+    expose(PreviewHttpServer.class);
   }
 
   @Provides
   @Singleton
   @Exposed
-  PreviewRequestQueue getPreviewRequestQueue(
-    @Named(PreviewConfigModule.PREVIEW_CCONF) CConfiguration previewCConf,
-    @Named(PreviewConfigModule.PREVIEW_LEVEL_DB) LevelDBTableService service) {
+  PreviewRequestQueue getPreviewRequestQueue(@Named(PreviewConfigModule.PREVIEW_CCONF) CConfiguration previewCConf,
+                                             @Named(PreviewConfigModule.PREVIEW_LEVEL_DB) LevelDBTableService service) {
     PreviewStore store = new DefaultPreviewStore(service);
     return new DefaultPreviewRequestQueue(previewCConf, store);
   }

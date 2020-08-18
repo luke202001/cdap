@@ -52,7 +52,7 @@ public class PreviewHttpHandlerInternal extends AbstractHttpHandler {
 
   @POST
   @Path("/requests/pull")
-  public void poll(FullHttpRequest request, HttpResponder responder) throws Exception {
+  public void poll(FullHttpRequest request, HttpResponder responder) {
     byte[] pollerInfo = Bytes.toBytes(request.content().nioBuffer());
     Optional<PreviewRequest> previewRequestOptional = previewManager.poll(pollerInfo);
     if (previewRequestOptional.isPresent()) {
