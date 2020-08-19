@@ -776,7 +776,11 @@ class KubeTwillPreparer implements TwillPreparer, StatefulTwillPreparer<KubeTwil
                           .path(podInfo.getNameFile()))
           .addItemsItem(new V1DownwardAPIVolumeFile()
                           .fieldRef(new V1ObjectFieldSelector().fieldPath("metadata.labels"))
-                          .path(podInfo.getLabelsFile())));
+                          .path(podInfo.getLabelsFile()))
+          .addItemsItem(new V1DownwardAPIVolumeFile()
+                          .fieldRef(new V1ObjectFieldSelector().fieldPath("metadata.uid"))
+                          .path(podInfo.getUidFile()))
+      );
   }
 
   /**
