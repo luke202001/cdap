@@ -39,6 +39,11 @@
       <groupId>org.apache.twill</groupId>
       <artifactId>twill-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.cdap.cdap</groupId>
+      <artifactId>cdap-watchdog-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
 </project>

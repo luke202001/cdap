@@ -691,6 +691,8 @@ public final class Constants {
       public static final String PROVISIONER = "prv";
       public static final String SPARK = "sp";
 
+      public static final String STATUS_CODE = "sc";
+
       // who emitted: user vs system (scope is historical name)
       public static final String SCOPE = "scp";
 
@@ -762,6 +764,19 @@ public final class Constants {
       public static final String PROGRAM_REJECTED_RUNS = "program.rejected.runs";
       public static final String PROGRAM_NODE_MINUTES = "program.node.minutes";
       public static final String PROGRAM_PROVISIONING_DELAY_SECONDS = "program.provisioning.delay.seconds";
+    }
+
+    /**
+     * Provisioner metrics
+     */
+    public static final class Provisioner {
+      public static final String CREATE_CLUSTER_COUNT =
+        "provisioner.createCluster.response.count";
+      public static final String DELETE_CLUSTER_COUNT = "provisioner.deleteCluster.response.count";
+      public static final String CLUSTER_STATUS_COUNT = "provisioner.clusterStatus.response.count";
+      public static final String CLUSTER_DETAIL_COUNT = "provisioner.clusterDetail.response.count";
+      public static final String SUBMIT_JOB_COUNT = "provisioner.submitJob.response.count";
+
     }
 
     /**

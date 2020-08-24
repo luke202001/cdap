@@ -16,6 +16,8 @@
 
 package io.cdap.cdap.runtime.spi.provisioner.dataproc;
 
+import io.cdap.cdap.api.metrics.MetricsContext;
+import io.cdap.cdap.api.metrics.NoopMetricsContext;
 import io.cdap.cdap.runtime.spi.ProgramRunInfo;
 import io.cdap.cdap.runtime.spi.RuntimeMonitorType;
 import io.cdap.cdap.runtime.spi.SparkCompat;
@@ -91,4 +93,10 @@ public class MockProvisionerContext implements ProvisionerContext {
   public RuntimeMonitorType getRuntimeMonitorType() {
     return null;
   }
+
+  @Override
+  public MetricsContext getMetricsContext() {
+    return new NoopMetricsContext();
+  }
+
 }

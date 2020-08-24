@@ -16,6 +16,7 @@
 
 package io.cdap.cdap.internal.provision;
 
+import io.cdap.cdap.api.metrics.MetricsContext;
 import io.cdap.cdap.common.utils.ProjectInfo;
 import io.cdap.cdap.proto.id.ProgramRunId;
 import io.cdap.cdap.runtime.spi.ProgramRunInfo;
@@ -45,10 +46,11 @@ public class DefaultProvisionerContext implements ProvisionerContext {
   private final String cdapVersion;
   private final LocationFactory locationFactory;
   private final RuntimeMonitorType runtimeMonitorType;
+  private final MetricsContext metricsContext;
 
   DefaultProvisionerContext(ProgramRunId programRunId, Map<String, String> properties,
                             SparkCompat sparkCompat, @Nullable SSHContext sshContext, LocationFactory locationFactory,
-                            RuntimeMonitorType runtimeMonitorType) {
+                            RuntimeMonitorType runtimeMonitorType, MetricsContext metricsContext) {
     this.programRun = new ProgramRun(programRunId.getNamespace(), programRunId.getApplication(),
                                      programRunId.getProgram(), programRunId.getRun());
     this.programRunInfo = new ProgramRunInfo.Builder()
@@ -65,6 +67,7 @@ public class DefaultProvisionerContext implements ProvisionerContext {
     this.locationFactory = locationFactory;
     this.cdapVersion = ProjectInfo.getVersion().toString();
     this.runtimeMonitorType = runtimeMonitorType;
+    this.metricsContext = metricsContext;
   }
 
   @Override
@@ -106,5 +109,10 @@ public class DefaultProvisionerContext implements ProvisionerContext {
   @Override
   public RuntimeMonitorType getRuntimeMonitorType() {
     return runtimeMonitorType;
+  }
+
+  @Override
+  public MetricsContext getMetricsContext() {
+    return metricsContext;
   }
 }

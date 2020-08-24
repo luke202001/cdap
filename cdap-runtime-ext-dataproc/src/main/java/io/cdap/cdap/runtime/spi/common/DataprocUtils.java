@@ -17,11 +17,16 @@
 package io.cdap.cdap.runtime.spi.common;
 
 import com.google.api.gax.paging.Page;
+import com.google.api.gax.rpc.StatusCode;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageBatch;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
+import io.cdap.cdap.api.metrics.MetricsContext;
+import io.cdap.cdap.common.conf.Constants;
+import io.cdap.cdap.runtime.spi.ProgramRunInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -227,6 +232,20 @@ public final class DataprocUtils {
       throw new IllegalArgumentException("Unable to get project id from the environment. "
                                            + "Please explicitly set the project id and account key.", e);
     }
+  }
+
+  /**
+   * Emit a dataproc metric.
+   **/
+  public static void emitMetric(MetricsContext metricsContext, ProgramRunInfo programRunInfo,
+                                StatusCode.Code statusCode, String  metricName) {
+    Map<String, String> tags = ImmutableMap.of(Constants.Metrics.Tag.NAMESPACE, programRunInfo.getNamespace(),
+                                               Constants.Metrics.Tag.APP, programRunInfo.getApplication(),
+                                               Constants.Metrics.Tag.RUN_ID, programRunInfo.getRun(),
+                                               Constants.Metrics.Tag.PROGRAM, programRunInfo.getProgram(),
+                                               Constants.Metrics.Tag.STATUS_CODE, statusCode.toString());
+    MetricsContext childContext = metricsContext.childContext(tags);
+    childContext.increment(metricName, 1);
   }
 
   /**

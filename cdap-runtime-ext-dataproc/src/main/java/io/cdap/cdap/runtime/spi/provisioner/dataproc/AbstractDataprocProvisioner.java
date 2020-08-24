@@ -162,7 +162,8 @@ public abstract class AbstractDataprocProvisioner implements Provisioner {
       return Optional.of(
         new DataprocRuntimeJobManager(new DataprocClusterInfo(context, clusterName, conf.getDataprocCredentials(),
                                                               DataprocClient.DATAPROC_GOOGLEAPIS_COM_443,
-                                                              projectId, region, bucket, systemLabels)));
+                                                              projectId, region, bucket, systemLabels),
+                                                              context.getMetricsContext()));
     } catch (Exception e) {
       throw new RuntimeException("Error while getting credentials for dataproc. ", e);
     }
