@@ -18,6 +18,7 @@ package io.cdap.cdap.runtime.spi.runtimejob;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import io.cdap.cdap.runtime.spi.provisioner.ProvisionerContext;
+import io.cdap.cdap.runtime.spi.provisioner.ProvisionerSpecification;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.Map;
 public class DataprocClusterInfo {
 
   private final ProvisionerContext provisionerContext;
+  private final ProvisionerSpecification provisionerSpecification;
   private final String clusterName;
   private final String endpoint;
   private final GoogleCredentials credentials;
@@ -37,10 +39,11 @@ public class DataprocClusterInfo {
   private final String bucket;
   private final Map<String, String> labels;
 
-  public DataprocClusterInfo(ProvisionerContext provisionerContext,
+  public DataprocClusterInfo(ProvisionerContext provisionerContext, ProvisionerSpecification provisionerSpecification,
                              String clusterName, GoogleCredentials credentials, String endpoint, String projectId,
                              String region, String bucket, Map<String, String> labels) {
     this.provisionerContext = provisionerContext;
+    this.provisionerSpecification = provisionerSpecification;
     this.clusterName = clusterName;
     this.endpoint = endpoint;
     this.credentials = credentials;
@@ -52,6 +55,10 @@ public class DataprocClusterInfo {
 
   ProvisionerContext getProvisionerContext() {
     return provisionerContext;
+  }
+
+  ProvisionerSpecification getProvisionerSpecification() {
+    return provisionerSpecification;
   }
 
   String getClusterName() {

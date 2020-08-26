@@ -692,6 +692,7 @@ public final class Constants {
       public static final String SPARK = "sp";
 
       public static final String STATUS_CODE = "sc";
+      public static final String REGION = "reg";
 
       // who emitted: user vs system (scope is historical name)
       public static final String SCOPE = "scp";

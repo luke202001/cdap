@@ -147,8 +147,8 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
                  numWarnings, numWarnings > 1 ? "s" : "",
                  String.join("\n", createOperationMeta.getWarningsList()));
       }
-      DataprocUtils.emitMetric(context.getMetricsContext(), context.getProgramRunInfo(), StatusCode.Code.OK,
-                               Constants.Metrics.Provisioner.CREATE_CLUSTER_COUNT);
+      DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
+                               StatusCode.Code.OK, Constants.Metrics.Provisioner.CREATE_CLUSTER_COUNT);
       return new Cluster(clusterName, ClusterStatus.CREATING, Collections.emptyList(), Collections.emptyMap());
     } catch (Exception e) {
       StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
@@ -157,8 +157,8 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
         ApiException apiException = (ApiException) cause;
         statusCode = apiException.getStatusCode().getCode();
       }
-      DataprocUtils.emitMetric(context.getMetricsContext(), context.getProgramRunInfo(), statusCode,
-                               Constants.Metrics.Provisioner.CREATE_CLUSTER_COUNT);
+      DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
+                               statusCode, Constants.Metrics.Provisioner.CREATE_CLUSTER_COUNT);
       throw e;
     }
   }
@@ -169,8 +169,8 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
     String clusterName = getClusterName(context);
     try (DataprocClient client = DataprocClient.fromConf(conf)) {
       ClusterStatus status = client.getClusterStatus(clusterName);
-      DataprocUtils.emitMetric(context.getMetricsContext(), context.getProgramRunInfo(), StatusCode.Code.OK,
-                               Constants.Metrics.Provisioner.CLUSTER_STATUS_COUNT);
+      DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
+                               StatusCode.Code.OK, Constants.Metrics.Provisioner.CLUSTER_STATUS_COUNT);
       return status;
     } catch (Exception e) {
       StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
@@ -179,8 +179,8 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
         ApiException apiException = (ApiException) cause;
         statusCode = apiException.getStatusCode().getCode();
       }
-      DataprocUtils.emitMetric(context.getMetricsContext(), context.getProgramRunInfo(), statusCode,
-                               Constants.Metrics.Provisioner.CLUSTER_STATUS_COUNT);
+      DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
+                               statusCode, Constants.Metrics.Provisioner.CLUSTER_STATUS_COUNT);
       throw e;
     }
   }
@@ -191,8 +191,8 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
     String clusterName = getClusterName(context);
     try (DataprocClient client = DataprocClient.fromConf(conf)) {
       Optional<Cluster> existing = client.getCluster(clusterName);
-      DataprocUtils.emitMetric(context.getMetricsContext(), context.getProgramRunInfo(), StatusCode.Code.OK,
-                               Constants.Metrics.Provisioner.CLUSTER_DETAIL_COUNT);
+      DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
+                               StatusCode.Code.OK, Constants.Metrics.Provisioner.CLUSTER_DETAIL_COUNT);
       return existing.orElseGet(() -> new Cluster(cluster, ClusterStatus.NOT_EXISTS));
     } catch (Exception e) {
       StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
@@ -201,8 +201,8 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
         ApiException apiException = (ApiException) cause;
         statusCode = apiException.getStatusCode().getCode();
       }
-      DataprocUtils.emitMetric(context.getMetricsContext(), context.getProgramRunInfo(), statusCode,
-                               Constants.Metrics.Provisioner.CLUSTER_DETAIL_COUNT);
+      DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
+                               statusCode, Constants.Metrics.Provisioner.CLUSTER_DETAIL_COUNT);
       throw e;
     }
   }
@@ -212,8 +212,8 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
     String clusterName = getClusterName(context);
     try (DataprocClient client = DataprocClient.fromConf(conf)) {
       client.deleteCluster(clusterName);
-      DataprocUtils.emitMetric(context.getMetricsContext(), context.getProgramRunInfo(), StatusCode.Code.OK,
-                               Constants.Metrics.Provisioner.DELETE_CLUSTER_COUNT);
+      DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
+                               StatusCode.Code.OK, Constants.Metrics.Provisioner.DELETE_CLUSTER_COUNT);
     } catch (Exception e) {
       StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
       Throwable cause = e.getCause();
@@ -221,8 +221,8 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
         ApiException apiException = (ApiException) cause;
         statusCode = apiException.getStatusCode().getCode();
       }
-      DataprocUtils.emitMetric(context.getMetricsContext(), context.getProgramRunInfo(), statusCode,
-                               Constants.Metrics.Provisioner.DELETE_CLUSTER_COUNT);
+      DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
+                               statusCode, Constants.Metrics.Provisioner.DELETE_CLUSTER_COUNT);
       throw e;
     }
   }

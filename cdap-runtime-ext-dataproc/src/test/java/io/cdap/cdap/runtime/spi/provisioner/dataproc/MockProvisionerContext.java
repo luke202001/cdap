@@ -16,7 +16,7 @@
 
 package io.cdap.cdap.runtime.spi.provisioner.dataproc;
 
-import io.cdap.cdap.api.metrics.MetricsContext;
+import io.cdap.cdap.api.metrics.Metrics;
 import io.cdap.cdap.api.metrics.NoopMetricsContext;
 import io.cdap.cdap.runtime.spi.ProgramRunInfo;
 import io.cdap.cdap.runtime.spi.RuntimeMonitorType;
@@ -95,8 +95,13 @@ public class MockProvisionerContext implements ProvisionerContext {
   }
 
   @Override
-  public MetricsContext getMetricsContext() {
-    return new NoopMetricsContext();
-  }
+  public Metrics getMetrics(Map<String, String> context) {
+    return new Metrics() {
+      @Override
+      public void count(String metricName, int delta) {}
 
+      @Override
+      public void gauge(String metricName, long value) {}
+    };
+  }
 }

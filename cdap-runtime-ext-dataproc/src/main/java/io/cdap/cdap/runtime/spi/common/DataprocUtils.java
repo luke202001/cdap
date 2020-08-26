@@ -24,9 +24,10 @@ import com.google.cloud.storage.StorageBatch;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
-import io.cdap.cdap.api.metrics.MetricsContext;
+import io.cdap.cdap.api.metrics.Metrics;
 import io.cdap.cdap.common.conf.Constants;
 import io.cdap.cdap.runtime.spi.ProgramRunInfo;
+import io.cdap.cdap.runtime.spi.provisioner.ProvisionerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -237,15 +238,19 @@ public final class DataprocUtils {
   /**
    * Emit a dataproc metric.
    **/
-  public static void emitMetric(MetricsContext metricsContext, ProgramRunInfo programRunInfo,
-                                StatusCode.Code statusCode, String  metricName) {
-    Map<String, String> tags = ImmutableMap.of(Constants.Metrics.Tag.NAMESPACE, programRunInfo.getNamespace(),
-                                               Constants.Metrics.Tag.APP, programRunInfo.getApplication(),
-                                               Constants.Metrics.Tag.RUN_ID, programRunInfo.getRun(),
-                                               Constants.Metrics.Tag.PROGRAM, programRunInfo.getProgram(),
-                                               Constants.Metrics.Tag.STATUS_CODE, statusCode.toString());
-    MetricsContext childContext = metricsContext.childContext(tags);
-    childContext.increment(metricName, 1);
+  public static void emitMetric(ProvisionerContext context, String provisioner, ProgramRunInfo programRunInfo,
+                                String region, StatusCode.Code statusCode, String  metricName) {
+    Map<String, String> tags = ImmutableMap.<String, String>builder()
+      .put(Constants.Metrics.Tag.NAMESPACE, programRunInfo.getNamespace())
+      .put(Constants.Metrics.Tag.APP, programRunInfo.getApplication())
+      .put(Constants.Metrics.Tag.RUN_ID, programRunInfo.getRun())
+      .put(Constants.Metrics.Tag.PROGRAM, programRunInfo.getProgram())
+      .put(Constants.Metrics.Tag.PROVISIONER, provisioner)
+      .put(Constants.Metrics.Tag.REGION, region)
+      .put(Constants.Metrics.Tag.STATUS_CODE, statusCode.toString())
+      .build();
+    Metrics metrics = context.getMetrics(tags);
+    metrics.count(metricName, 1);
   }
 
   /**
