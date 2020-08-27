@@ -16,13 +16,12 @@
 
 package io.cdap.cdap.runtime.spi.provisioner.dataproc;
 
-import io.cdap.cdap.api.metrics.Metrics;
-import io.cdap.cdap.api.metrics.NoopMetricsContext;
 import io.cdap.cdap.runtime.spi.ProgramRunInfo;
 import io.cdap.cdap.runtime.spi.RuntimeMonitorType;
 import io.cdap.cdap.runtime.spi.SparkCompat;
 import io.cdap.cdap.runtime.spi.provisioner.ProgramRun;
 import io.cdap.cdap.runtime.spi.provisioner.ProvisionerContext;
+import io.cdap.cdap.runtime.spi.provisioner.ProvisionerMetrics;
 import io.cdap.cdap.runtime.spi.ssh.SSHContext;
 import org.apache.twill.filesystem.LocationFactory;
 
@@ -95,8 +94,8 @@ public class MockProvisionerContext implements ProvisionerContext {
   }
 
   @Override
-  public Metrics getMetrics(Map<String, String> context) {
-    return new Metrics() {
+  public ProvisionerMetrics getMetrics(Map<String, String> context) {
+    return new ProvisionerMetrics() {
       @Override
       public void count(String metricName, int delta) {}
 

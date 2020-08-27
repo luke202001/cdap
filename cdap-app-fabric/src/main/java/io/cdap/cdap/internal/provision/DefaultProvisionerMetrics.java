@@ -16,14 +16,14 @@
 
 package io.cdap.cdap.internal.provision;
 
-import io.cdap.cdap.api.metrics.Metrics;
 import io.cdap.cdap.api.metrics.MetricsContext;
+import io.cdap.cdap.runtime.spi.provisioner.ProvisionerMetrics;
 
 /**
- * Implementation of {@link Metrics} used in provisioners.
+ * Implementation of {@link ProvisionerMetrics} used in provisioners.
  */
 
-public class DefaultProvisionerMetrics implements Metrics {
+public class DefaultProvisionerMetrics implements ProvisionerMetrics {
 
   private final MetricsContext metricsContext;
 

@@ -24,10 +24,9 @@ import com.google.cloud.storage.StorageBatch;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
-import io.cdap.cdap.api.metrics.Metrics;
-import io.cdap.cdap.common.conf.Constants;
 import io.cdap.cdap.runtime.spi.ProgramRunInfo;
 import io.cdap.cdap.runtime.spi.provisioner.ProvisionerContext;
+import io.cdap.cdap.runtime.spi.provisioner.ProvisionerMetrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -241,15 +240,12 @@ public final class DataprocUtils {
   public static void emitMetric(ProvisionerContext context, String provisioner, ProgramRunInfo programRunInfo,
                                 String region, StatusCode.Code statusCode, String  metricName) {
     Map<String, String> tags = ImmutableMap.<String, String>builder()
-      .put(Constants.Metrics.Tag.NAMESPACE, programRunInfo.getNamespace())
-      .put(Constants.Metrics.Tag.APP, programRunInfo.getApplication())
-      .put(Constants.Metrics.Tag.RUN_ID, programRunInfo.getRun())
-      .put(Constants.Metrics.Tag.PROGRAM, programRunInfo.getProgram())
-      .put(Constants.Metrics.Tag.PROVISIONER, provisioner)
-      .put(Constants.Metrics.Tag.REGION, region)
-      .put(Constants.Metrics.Tag.STATUS_CODE, statusCode.toString())
+      // Constants.Metrics.Tag.REGION = "reg"
+      .put("reg", region)
+      // Constants.Metrics.Tag.STATUS_CODE = "sc"
+      .put("sc", statusCode.toString())
       .build();
-    Metrics metrics = context.getMetrics(tags);
+    ProvisionerMetrics metrics = context.getMetrics(tags);
     metrics.count(metricName, 1);
   }
 

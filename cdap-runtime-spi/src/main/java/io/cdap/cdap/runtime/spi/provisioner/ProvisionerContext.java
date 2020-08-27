@@ -16,7 +16,6 @@
 
 package io.cdap.cdap.runtime.spi.provisioner;
 
-import io.cdap.cdap.api.metrics.Metrics;
 import io.cdap.cdap.runtime.spi.ProgramRunInfo;
 import io.cdap.cdap.runtime.spi.RuntimeMonitorType;
 import io.cdap.cdap.runtime.spi.SparkCompat;
@@ -82,7 +81,7 @@ public interface ProvisionerContext {
   RuntimeMonitorType getRuntimeMonitorType();
 
   /**
-   * Returns a {@link Metrics} object configured based on {@code context}.
+   * Returns a {@link ProvisionerMetrics} object configured based on {@code context}.
    */
-  Metrics getMetrics(Map<String, String> context);
+  ProvisionerMetrics getMetrics(Map<String, String> context);
 }
