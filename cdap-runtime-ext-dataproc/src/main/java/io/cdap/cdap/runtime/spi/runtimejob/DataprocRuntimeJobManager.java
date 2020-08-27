@@ -41,7 +41,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
-import io.cdap.cdap.common.conf.Constants;
 import io.cdap.cdap.runtime.spi.ProgramRunInfo;
 import io.cdap.cdap.runtime.spi.common.DataprocUtils;
 import io.cdap.cdap.runtime.spi.provisioner.ProvisionerContext;
@@ -193,7 +192,8 @@ public class DataprocRuntimeJobManager implements RuntimeJobManager {
       Job job = getJobControllerClient().submitJob(request);
       LOG.debug("Successfully submitted hadoop job {} to cluster {}.", job.getReference().getJobId(), clusterName);
       DataprocUtils.emitMetric(provisionerContext, provisionerName, runInfo, region, StatusCode.Code.OK,
-                               Constants.Metrics.Provisioner.SUBMIT_JOB_COUNT);
+                               // Constants.Metrics.Provisioner.SUBMIT_JOB_COUNT =
+                               "provisioner.submitJob.response.count");
     } catch (Exception e) {
       // delete all uploaded gcs files in case of exception
       DataprocUtils.deleteGCSPath(getStorageClient(), bucket, runRootPath);
@@ -204,7 +204,8 @@ public class DataprocRuntimeJobManager implements RuntimeJobManager {
         statusCode = apiException.getStatusCode().getCode();
       }
       DataprocUtils.emitMetric(provisionerContext, provisionerName, runInfo, region, statusCode,
-                               Constants.Metrics.Provisioner.SUBMIT_JOB_COUNT);
+                               // Constants.Metrics.Provisioner.SUBMIT_JOB_COUNT =
+                               "provisioner.submitJob.response.count");
       throw new Exception(String.format("Error while launching job %s on cluster %s",
                                         getJobId(runInfo), clusterName), e);
     } finally {

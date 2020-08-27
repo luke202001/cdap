@@ -741,8 +741,8 @@ public class ProvisioningService extends AbstractIdleService {
                                            @Nullable SSHContext sshContext, RuntimeMonitorType runtimeMonitorType,
                                            String provisionerName) {
     Map<String, String> evaluated = evaluateMacros(secureStore, userId, programRunId.getNamespace(), properties);
-    return new DefaultProvisionerContext(programRunId, provisionerName, evaluated, sparkCompat, sshContext, locationFactory,
-                                         runtimeMonitorType, metricsCollectionService);
+    return new DefaultProvisionerContext(programRunId, provisionerName, evaluated, sparkCompat, sshContext,
+                                         locationFactory, runtimeMonitorType, metricsCollectionService);
   }
 
   /**

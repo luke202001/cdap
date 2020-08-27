@@ -20,7 +20,6 @@ import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.cloud.dataproc.v1beta2.ClusterOperationMetadata;
 import com.google.common.collect.ImmutableSet;
-import io.cdap.cdap.common.conf.Constants;
 import io.cdap.cdap.runtime.spi.ProgramRunInfo;
 import io.cdap.cdap.runtime.spi.RuntimeMonitorType;
 import io.cdap.cdap.runtime.spi.common.DataprocUtils;
@@ -148,7 +147,9 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
                  String.join("\n", createOperationMeta.getWarningsList()));
       }
       DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
-                               StatusCode.Code.OK, Constants.Metrics.Provisioner.CREATE_CLUSTER_COUNT);
+                               StatusCode.Code.OK,
+                               // Constants.Metrics.Provisioner.CREATE_CLUSTER_COUNT =
+                               "provisioner.createCluster.response.count");
       return new Cluster(clusterName, ClusterStatus.CREATING, Collections.emptyList(), Collections.emptyMap());
     } catch (Exception e) {
       StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
@@ -158,7 +159,9 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
         statusCode = apiException.getStatusCode().getCode();
       }
       DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
-                               statusCode, Constants.Metrics.Provisioner.CREATE_CLUSTER_COUNT);
+                               statusCode,
+                               //Constants.Metrics.Provisioner.CREATE_CLUSTER_COUNT =
+                               "provisioner.createCluster.response.count");
       throw e;
     }
   }
@@ -170,7 +173,9 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
     try (DataprocClient client = DataprocClient.fromConf(conf)) {
       ClusterStatus status = client.getClusterStatus(clusterName);
       DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
-                               StatusCode.Code.OK, Constants.Metrics.Provisioner.CLUSTER_STATUS_COUNT);
+                               StatusCode.Code.OK,
+                               // Constants.Metrics.Provisioner.CLUSTER_STATUS_COUNT =
+                               "provisioner.clusterStatus.response.count");
       return status;
     } catch (Exception e) {
       StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
@@ -180,7 +185,9 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
         statusCode = apiException.getStatusCode().getCode();
       }
       DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
-                               statusCode, Constants.Metrics.Provisioner.CLUSTER_STATUS_COUNT);
+                               statusCode,
+                               // Constants.Metrics.Provisioner.CLUSTER_STATUS_COUNT =
+                               "provisioner.clusterStatus.response.count");
       throw e;
     }
   }
@@ -192,7 +199,9 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
     try (DataprocClient client = DataprocClient.fromConf(conf)) {
       Optional<Cluster> existing = client.getCluster(clusterName);
       DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
-                               StatusCode.Code.OK, Constants.Metrics.Provisioner.CLUSTER_DETAIL_COUNT);
+                               StatusCode.Code.OK,
+                               // Constants.Metrics.Provisioner.CLUSTER_DETAIL_COUNT =
+                               "provisioner.clusterDetail.response.count");
       return existing.orElseGet(() -> new Cluster(cluster, ClusterStatus.NOT_EXISTS));
     } catch (Exception e) {
       StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
@@ -202,7 +211,9 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
         statusCode = apiException.getStatusCode().getCode();
       }
       DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
-                               statusCode, Constants.Metrics.Provisioner.CLUSTER_DETAIL_COUNT);
+                               statusCode,
+                               // Constants.Metrics.Provisioner.CLUSTER_DETAIL_COUNT =
+                               "provisioner.clusterDetail.response.count");
       throw e;
     }
   }
@@ -213,7 +224,9 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
     try (DataprocClient client = DataprocClient.fromConf(conf)) {
       client.deleteCluster(clusterName);
       DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
-                               StatusCode.Code.OK, Constants.Metrics.Provisioner.DELETE_CLUSTER_COUNT);
+                               StatusCode.Code.OK,
+                               // Constants.Metrics.Provisioner.DELETE_CLUSTER_COUNT =
+                               "provisioner.deleteCluster.response.count");
     } catch (Exception e) {
       StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
       Throwable cause = e.getCause();
@@ -222,7 +235,9 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
         statusCode = apiException.getStatusCode().getCode();
       }
       DataprocUtils.emitMetric(context, getSpec().getName(), context.getProgramRunInfo(), conf.getRegion(),
-                               statusCode, Constants.Metrics.Provisioner.DELETE_CLUSTER_COUNT);
+                               statusCode,
+                               // Constants.Metrics.Provisioner.DELETE_CLUSTER_COUNT =
+                               "provisioner.deleteCluster.response.count");
       throw e;
     }
   }
