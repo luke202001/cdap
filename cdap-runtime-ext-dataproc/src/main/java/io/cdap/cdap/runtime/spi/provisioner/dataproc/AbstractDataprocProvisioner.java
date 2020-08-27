@@ -160,7 +160,7 @@ public abstract class AbstractDataprocProvisioner implements Provisioner {
     Map<String, String> systemLabels = getSystemLabels();
     try {
       return Optional.of(
-        new DataprocRuntimeJobManager(new DataprocClusterInfo(context, spec, clusterName, conf.getDataprocCredentials(),
+        new DataprocRuntimeJobManager(new DataprocClusterInfo(context, clusterName, conf.getDataprocCredentials(),
                                                               DataprocClient.DATAPROC_GOOGLEAPIS_COM_443,
                                                               projectId, region, bucket, systemLabels)));
     } catch (Exception e) {

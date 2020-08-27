@@ -24,7 +24,6 @@ import com.google.cloud.storage.StorageBatch;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
-import io.cdap.cdap.runtime.spi.ProgramRunInfo;
 import io.cdap.cdap.runtime.spi.provisioner.ProvisionerContext;
 import io.cdap.cdap.runtime.spi.provisioner.ProvisionerMetrics;
 import org.slf4j.Logger;
@@ -237,8 +236,8 @@ public final class DataprocUtils {
   /**
    * Emit a dataproc metric.
    **/
-  public static void emitMetric(ProvisionerContext context, String provisioner, ProgramRunInfo programRunInfo,
-                                String region, StatusCode.Code statusCode, String  metricName) {
+  public static void emitMetric(ProvisionerContext context, String region,
+                                StatusCode.Code statusCode, String  metricName) {
     Map<String, String> tags = ImmutableMap.<String, String>builder()
       // Constants.Metrics.Tag.REGION = "reg"
       .put("reg", region)

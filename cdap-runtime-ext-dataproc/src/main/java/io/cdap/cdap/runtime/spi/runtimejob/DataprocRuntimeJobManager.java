@@ -85,7 +85,6 @@ public class DataprocRuntimeJobManager implements RuntimeJobManager {
   private static final Pattern DATAPROC_JOB_ID_PATTERN = Pattern.compile("[a-zA-Z0-9_-]{0,100}$");
 
   private final ProvisionerContext provisionerContext;
-  private final String provisionerName;
   private final String clusterName;
   private final GoogleCredentials credentials;
   private final String endpoint;
@@ -104,7 +103,6 @@ public class DataprocRuntimeJobManager implements RuntimeJobManager {
    */
   public DataprocRuntimeJobManager(DataprocClusterInfo clusterInfo) {
     this.provisionerContext = clusterInfo.getProvisionerContext();
-    this.provisionerName = clusterInfo.getProvisionerSpecification().getName();
     this.clusterName = clusterInfo.getClusterName();
     this.credentials = clusterInfo.getCredentials();
     this.endpoint = clusterInfo.getEndpoint();
@@ -191,7 +189,7 @@ public class DataprocRuntimeJobManager implements RuntimeJobManager {
       // step 4: submit hadoop job to dataproc
       Job job = getJobControllerClient().submitJob(request);
       LOG.debug("Successfully submitted hadoop job {} to cluster {}.", job.getReference().getJobId(), clusterName);
-      DataprocUtils.emitMetric(provisionerContext, provisionerName, runInfo, region, StatusCode.Code.OK,
+      DataprocUtils.emitMetric(provisionerContext, region, StatusCode.Code.OK,
                                // Constants.Metrics.Provisioner.SUBMIT_JOB_COUNT =
                                "provisioner.submitJob.response.count");
     } catch (Exception e) {
@@ -203,7 +201,7 @@ public class DataprocRuntimeJobManager implements RuntimeJobManager {
         ApiException apiException = (ApiException) cause;
         statusCode = apiException.getStatusCode().getCode();
       }
-      DataprocUtils.emitMetric(provisionerContext, provisionerName, runInfo, region, statusCode,
+      DataprocUtils.emitMetric(provisionerContext, region, statusCode,
                                // Constants.Metrics.Provisioner.SUBMIT_JOB_COUNT =
                                "provisioner.submitJob.response.count");
       throw new Exception(String.format("Error while launching job %s on cluster %s",
