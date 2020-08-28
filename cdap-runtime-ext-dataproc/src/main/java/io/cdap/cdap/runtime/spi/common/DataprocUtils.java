@@ -17,6 +17,7 @@
 package io.cdap.cdap.runtime.spi.common;
 
 import com.google.api.gax.paging.Page;
+import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.Storage;
@@ -237,7 +238,19 @@ public final class DataprocUtils {
    * Emit a dataproc metric.
    **/
   public static void emitMetric(ProvisionerContext context, String region,
-                                StatusCode.Code statusCode, String  metricName) {
+                                Exception e, String  metricName) {
+    StatusCode.Code statusCode;
+    if (e == null) {
+      statusCode = StatusCode.Code.OK;
+    } else {
+      Throwable cause = e.getCause();
+      if (cause instanceof ApiException) {
+        ApiException apiException = (ApiException) cause;
+        statusCode = apiException.getStatusCode().getCode();
+      } else {
+        statusCode = StatusCode.Code.INTERNAL;
+      }
+    }
     Map<String, String> tags = ImmutableMap.<String, String>builder()
       // Constants.Metrics.Tag.REGION = "reg"
       .put("reg", region)

@@ -16,8 +16,6 @@
 
 package io.cdap.cdap.runtime.spi.provisioner.dataproc;
 
-import com.google.api.gax.rpc.ApiException;
-import com.google.api.gax.rpc.StatusCode;
 import com.google.cloud.dataproc.v1beta2.ClusterOperationMetadata;
 import com.google.common.collect.ImmutableSet;
 import io.cdap.cdap.runtime.spi.ProgramRunInfo;
@@ -146,18 +144,12 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
                  numWarnings, numWarnings > 1 ? "s" : "",
                  String.join("\n", createOperationMeta.getWarningsList()));
       }
-      DataprocUtils.emitMetric(context, conf.getRegion(), StatusCode.Code.OK,
+      DataprocUtils.emitMetric(context, conf.getRegion(), null,
                                // Constants.Metrics.Provisioner.CREATE_CLUSTER_COUNT =
                                "provisioner.createCluster.response.count");
       return new Cluster(clusterName, ClusterStatus.CREATING, Collections.emptyList(), Collections.emptyMap());
     } catch (Exception e) {
-      StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
-      Throwable cause = e.getCause();
-      if (cause instanceof ApiException) {
-        ApiException apiException = (ApiException) cause;
-        statusCode = apiException.getStatusCode().getCode();
-      }
-      DataprocUtils.emitMetric(context, conf.getRegion(), statusCode,
+      DataprocUtils.emitMetric(context, conf.getRegion(), e,
                                //Constants.Metrics.Provisioner.CREATE_CLUSTER_COUNT =
                                "provisioner.createCluster.response.count");
       throw e;
@@ -170,18 +162,12 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
     String clusterName = getClusterName(context);
     try (DataprocClient client = DataprocClient.fromConf(conf)) {
       ClusterStatus status = client.getClusterStatus(clusterName);
-      DataprocUtils.emitMetric(context, conf.getRegion(), StatusCode.Code.OK,
+      DataprocUtils.emitMetric(context, conf.getRegion(), null,
                                // Constants.Metrics.Provisioner.CLUSTER_STATUS_COUNT =
                                "provisioner.clusterStatus.response.count");
       return status;
     } catch (Exception e) {
-      StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
-      Throwable cause = e.getCause();
-      if (cause instanceof ApiException) {
-        ApiException apiException = (ApiException) cause;
-        statusCode = apiException.getStatusCode().getCode();
-      }
-      DataprocUtils.emitMetric(context, conf.getRegion(), statusCode,
+      DataprocUtils.emitMetric(context, conf.getRegion(), e,
                                // Constants.Metrics.Provisioner.CLUSTER_STATUS_COUNT =
                                "provisioner.clusterStatus.response.count");
       throw e;
@@ -194,18 +180,12 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
     String clusterName = getClusterName(context);
     try (DataprocClient client = DataprocClient.fromConf(conf)) {
       Optional<Cluster> existing = client.getCluster(clusterName);
-      DataprocUtils.emitMetric(context, conf.getRegion(), StatusCode.Code.OK,
+      DataprocUtils.emitMetric(context, conf.getRegion(), null,
                                // Constants.Metrics.Provisioner.CLUSTER_DETAIL_COUNT =
                                "provisioner.clusterDetail.response.count");
       return existing.orElseGet(() -> new Cluster(cluster, ClusterStatus.NOT_EXISTS));
     } catch (Exception e) {
-      StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
-      Throwable cause = e.getCause();
-      if (cause instanceof ApiException) {
-        ApiException apiException = (ApiException) cause;
-        statusCode = apiException.getStatusCode().getCode();
-      }
-      DataprocUtils.emitMetric(context, conf.getRegion(), statusCode,
+      DataprocUtils.emitMetric(context, conf.getRegion(), e,
                                // Constants.Metrics.Provisioner.CLUSTER_DETAIL_COUNT =
                                "provisioner.clusterDetail.response.count");
       throw e;
@@ -217,17 +197,11 @@ public class DataprocProvisioner extends AbstractDataprocProvisioner {
     String clusterName = getClusterName(context);
     try (DataprocClient client = DataprocClient.fromConf(conf)) {
       client.deleteCluster(clusterName);
-      DataprocUtils.emitMetric(context, conf.getRegion(), StatusCode.Code.OK,
+      DataprocUtils.emitMetric(context, conf.getRegion(), null,
                                // Constants.Metrics.Provisioner.DELETE_CLUSTER_COUNT =
                                "provisioner.deleteCluster.response.count");
     } catch (Exception e) {
-      StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
-      Throwable cause = e.getCause();
-      if (cause instanceof ApiException) {
-        ApiException apiException = (ApiException) cause;
-        statusCode = apiException.getStatusCode().getCode();
-      }
-      DataprocUtils.emitMetric(context, conf.getRegion(), statusCode,
+      DataprocUtils.emitMetric(context, conf.getRegion(), e,
                                // Constants.Metrics.Provisioner.DELETE_CLUSTER_COUNT =
                                "provisioner.deleteCluster.response.count");
       throw e;

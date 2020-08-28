@@ -109,10 +109,6 @@ public class MetricsQueryHelper {
 
       .put(Constants.Metrics.Tag.PROVISIONER, "provisioner")
 
-      .put(Constants.Metrics.Tag.STATUS_CODE, "statuscode")
-      .put(Constants.Metrics.Tag.REGION, "region")
-
-
       .put(Constants.Metrics.Tag.SPARK, "spark")
 
       // put program related tag
