@@ -115,7 +115,7 @@ import java.util.stream.Collectors;
  * Most of these operations are no-ops as many of these methods and pretty closely coupled to the Hadoop implementation
  * and have no analogy in Kubernetes.
  */
-class KubeTwillPreparer implements TwillPreparer, StatefulTwillPreparer<KubeTwillPreparer> {
+class KubeTwillPreparer implements TwillPreparer, StatefulTwillPreparer {
 
   private static final Logger LOG = LoggerFactory.getLogger(KubeTwillPreparer.class);
 
@@ -473,7 +473,7 @@ class KubeTwillPreparer implements TwillPreparer, StatefulTwillPreparer<KubeTwil
     V1Deployment deployment = buildDeployment(metadata, runtimeSpec, runtimeConfigLocation);
 
     deployment = appsApi.createNamespacedDeployment(kubeNamespace, deployment, "true", null, null);
-    LOG.info("Created deployment {} in Kubernetes", metadata.getName());
+    LOG.info("Created Deployment {} in Kubernetes", metadata.getName());
     return deployment.getMetadata();
   }
 
@@ -489,7 +489,7 @@ class KubeTwillPreparer implements TwillPreparer, StatefulTwillPreparer<KubeTwil
     V1StatefulSet statefulSet = buildStatefulSet(metadata, runtimeSpec, runtimeConfigLocation, statefulRunnable);
 
     statefulSet = appsApi.createNamespacedStatefulSet(kubeNamespace, statefulSet, "true", null, null);
-    LOG.info("Created deployment {} in Kubernetes", metadata.getName());
+    LOG.info("Created StatefulSet {} in Kubernetes", metadata.getName());
     return statefulSet.getMetadata();
   }
 
