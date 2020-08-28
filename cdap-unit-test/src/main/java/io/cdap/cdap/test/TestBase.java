@@ -280,7 +280,7 @@ public class TestBase {
       new AuthorizationEnforcementModule().getInMemoryModules(),
       new MessagingServerRuntimeModule().getInMemoryModules(),
       new PreviewConfigModule(cConf, new Configuration(), SConfiguration.create()),
-      new PreviewManagerModule(),
+      new PreviewManagerModule(false),
       new PreviewRunnerManagerModule().getInMemoryModules(),
       new MockProvisionerModule(),
       new AbstractModule() {

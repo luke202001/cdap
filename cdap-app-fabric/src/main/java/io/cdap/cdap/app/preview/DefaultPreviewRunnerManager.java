@@ -106,7 +106,7 @@ public class DefaultPreviewRunnerManager extends AbstractIdleService implements 
     this.secureStore = secureStore;
     this.discoveryService = discoveryService;
     this.transactionSystemClient = transactionSystemClient;
-    this.maxConcurrentPreviews = previewCConf.getInt(Constants.Preview.POLLER_COUNT, 10);
+    this.maxConcurrentPreviews = previewCConf.getInt(Constants.Preview.POLLER_COUNT);
     this.previewRunnerServices = ConcurrentHashMap.newKeySet();
     this.previewRunnerModule = previewRunnerModule;
     this.previewLevelDBTableService = previewLevelDBService;
@@ -124,35 +124,14 @@ public class DefaultPreviewRunnerManager extends AbstractIdleService implements 
 
     // Create and start the preview poller services.
     for (int i = 0; i < maxConcurrentPreviews; i++) {
-      PreviewRunnerService pollerService = previewRunnerServiceFactory.create(runner);
-
-      pollerService.addListener(new ServiceListenerAdapter() {
-        @Override
-        public void terminated(State from) {
-          previewRunnerServices.remove(pollerService);
-          if (previewRunnerServices.isEmpty()) {
-            try {
-              stop();
-            } catch (Exception e) {
-              // should not happen
-              LOG.error("Failed to shutdown the preview runner manager service.", e);
-            }
-          }
-        }
-      }, Threads.SAME_THREAD_EXECUTOR);
-
-      pollerService.startAndWait();
-      previewRunnerServices.add(pollerService);
+      createPreviewRunnerService().startAndWait();
     }
   }
 
   @Override
   protected void shutDown() throws Exception {
     // Should stop the polling service, hence individual preview runs, before stopping the top level preview runner.
-    for (Service pollerService : previewRunnerServices) {
-      stopQuietly(pollerService);
-    }
-
+    previewRunnerServices.forEach(this::stopQuietly);
     if (runner instanceof Service) {
       stopQuietly((Service) runner);
     }
@@ -168,17 +147,18 @@ public class DefaultPreviewRunnerManager extends AbstractIdleService implements 
 
   @Override
   public void stop(ApplicationId preview) throws Exception {
-    for (PreviewRunnerService previewRunnerService : previewRunnerServices) {
-      if (!preview.equals(previewRunnerService.getPreviewApplication().orElse(null))) {
-        continue;
-      }
-      previewRunnerService.stopAndWait();
-      PreviewRunnerService newService = previewRunnerServiceFactory.create(runner);
-      newService.startAndWait();
-      previewRunnerServices.add(newService);
-      return;
+    PreviewRunnerService runnerService = previewRunnerServices.stream()
+      .filter(r -> r.getPreviewApplication().filter(preview::equals).isPresent())
+      .findFirst()
+      .orElse(null);
+
+    if (runnerService == null) {
+      throw new NotFoundException("Preview run cannot be stopped. Please try stopping again or start new preview run.");
     }
-    throw new NotFoundException("Preview run cannot be stopped. Please try stopping again or start new preview run.");
+
+    PreviewRunnerService newRunnerService = createPreviewRunnerService();
+    runnerService.stopAndWait();
+    newRunnerService.startAndWait();
   }
 
   /**
@@ -231,5 +211,32 @@ public class DefaultPreviewRunnerManager extends AbstractIdleService implements 
         }
       }
     );
+  }
+
+  /**
+   * Creates a {@link PreviewRunnerService}. It will automatically added to and removed from the
+   * {@link #previewRunnerServices} set.
+   */
+  private PreviewRunnerService createPreviewRunnerService() {
+    PreviewRunnerService previewRunnerService = previewRunnerServiceFactory.create(runner);
+
+    previewRunnerService.addListener(new ServiceListenerAdapter() {
+
+      @Override
+      public void terminated(State from) {
+        previewRunnerServices.remove(previewRunnerService);
+        if (previewRunnerServices.isEmpty()) {
+          try {
+            stop();
+          } catch (Exception e) {
+            // should not happen
+            LOG.error("Failed to shutdown the preview runner manager service.", e);
+          }
+        }
+      }
+    }, Threads.SAME_THREAD_EXECUTOR);
+
+    previewRunnerServices.add(previewRunnerService);
+    return previewRunnerService;
   }
 }

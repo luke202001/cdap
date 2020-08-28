@@ -31,7 +31,10 @@ import io.cdap.cdap.gateway.handlers.preview.PreviewHttpHandler;
 import io.cdap.cdap.gateway.handlers.preview.PreviewHttpHandlerInternal;
 import io.cdap.cdap.internal.app.preview.DefaultPreviewManager;
 import io.cdap.cdap.internal.app.preview.DefaultPreviewRequestQueue;
+import io.cdap.cdap.internal.app.preview.DistributedPreviewManager;
+import io.cdap.cdap.internal.app.preview.DistributedPreviewRunStopper;
 import io.cdap.cdap.internal.app.preview.PreviewDataCleanupService;
+import io.cdap.cdap.internal.app.preview.PreviewRunStopper;
 import io.cdap.cdap.internal.app.store.preview.DefaultPreviewStore;
 import io.cdap.http.HttpHandler;
 
@@ -39,6 +42,12 @@ import io.cdap.http.HttpHandler;
  * Provides bindings for {@link PreviewManager}.
  */
 public class PreviewManagerModule extends PrivateModule {
+
+  private final boolean distributedRunner;
+
+  public PreviewManagerModule(boolean distributedRunner) {
+    this.distributedRunner = distributedRunner;
+  }
 
   @Override
   protected void configure() {
@@ -54,7 +63,13 @@ public class PreviewManagerModule extends PrivateModule {
     expose(PreviewRequestQueue.class);
 
     bind(PreviewDataCleanupService.class).in(Scopes.SINGLETON);
-    bind(PreviewManager.class).to(DefaultPreviewManager.class).in(Scopes.SINGLETON);
+
+    if (distributedRunner) {
+      bind(PreviewManager.class).to(DistributedPreviewManager.class).in(Scopes.SINGLETON);
+      bind(PreviewRunStopper.class).to(DistributedPreviewRunStopper.class).in(Scopes.SINGLETON);
+    } else {
+      bind(PreviewManager.class).to(DefaultPreviewManager.class).in(Scopes.SINGLETON);
+    }
 
     Multibinder<HttpHandler> handlerBinder = Multibinder.newSetBinder(binder(), HttpHandler.class);
     handlerBinder.addBinding().to(PreviewHttpHandler.class);
