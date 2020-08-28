@@ -252,9 +252,7 @@ public final class DataprocUtils {
       }
     }
     Map<String, String> tags = ImmutableMap.<String, String>builder()
-      // Constants.Metrics.Tag.REGION = "reg"
       .put("reg", region)
-      // Constants.Metrics.Tag.STATUS_CODE = "sc"
       .put("sc", statusCode.toString())
       .build();
     ProvisionerMetrics metrics = context.getMetrics(tags);

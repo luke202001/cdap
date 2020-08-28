@@ -768,17 +768,6 @@ public final class Constants {
     }
 
     /**
-     * Provisioner metrics
-     */
-    public static final class Provisioner {
-      public static final String CREATE_CLUSTER_COUNT = "provisioner.createCluster.response.count";
-      public static final String DELETE_CLUSTER_COUNT = "provisioner.deleteCluster.response.count";
-      public static final String CLUSTER_STATUS_COUNT = "provisioner.clusterStatus.response.count";
-      public static final String CLUSTER_DETAIL_COUNT = "provisioner.clusterDetail.response.count";
-      public static final String SUBMIT_JOB_COUNT = "provisioner.submitJob.response.count";
-    }
-
-    /**
      * Structured table metrics
      */
     public static final class StructuredTable {
