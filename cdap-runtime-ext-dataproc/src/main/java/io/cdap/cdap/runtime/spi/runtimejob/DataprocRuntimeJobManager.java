@@ -195,8 +195,6 @@ public class DataprocRuntimeJobManager implements RuntimeJobManager {
     } catch (Exception e) {
       // delete all uploaded gcs files in case of exception
       DataprocUtils.deleteGCSPath(getStorageClient(), bucket, runRootPath);
-      StatusCode.Code statusCode = StatusCode.Code.INTERNAL;
-      Throwable cause = e.getCause();
       DataprocUtils.emitMetric(provisionerContext, region, e,
                                // Constants.Metrics.Provisioner.SUBMIT_JOB_COUNT =
                                "provisioner.submitJob.response.count");
