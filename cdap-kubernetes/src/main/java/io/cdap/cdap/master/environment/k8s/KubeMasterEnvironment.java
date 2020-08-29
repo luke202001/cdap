@@ -89,7 +89,6 @@ public class KubeMasterEnvironment implements MasterEnvironment {
   private static final String DEFAULT_POD_NAME_FILE = "pod.name";
   private static final String DEFAULT_POD_UID_FILE = "pod.uid";
   private static final String DEFAULT_POD_LABELS_FILE = "pod.labels.properties";
-  private static final String DEFAULT_POD_KILLER_SELECTOR = "cdap.container=preview";
   private static final long DEFAULT_POD_KILLER_DELAY_MILLIS = TimeUnit.HOURS.toMillis(1L);
 
   private static final Pattern LABEL_PATTERN = Pattern.compile("(cdap\\..+?)=\"(.*)\"");
@@ -129,7 +128,7 @@ public class KubeMasterEnvironment implements MasterEnvironment {
                                                 podInfo.getOwnerReferences());
 
     // Optionally creates the pod killer task
-    String podKillerSelector = conf.getOrDefault(POD_KILLER_SELECTOR, DEFAULT_POD_KILLER_SELECTOR);
+    String podKillerSelector = conf.get(POD_KILLER_SELECTOR);
     if (!Strings.isNullOrEmpty(podKillerSelector)) {
       long delayMillis = DEFAULT_POD_KILLER_DELAY_MILLIS;
       String confDelay = conf.get(POD_KILLER_DELAY_MILLIS);
