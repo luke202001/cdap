@@ -159,6 +159,11 @@ public class DistributedPreviewManager extends DefaultPreviewManager implements 
           TwillPreparer twillPreparer = twillRunner.prepare(new PreviewRunnerTwillApplication(cConfPath.toUri(),
                                                                                               hConfPath.toUri(),
                                                                                               resourceSpec));
+          String priorityClass = cConf.get(Constants.Preview.CONTAINER_PRIORITY_CLASS_NAME);
+          if (priorityClass != null) {
+            twillPreparer = twillPreparer.setSchedulerQueue(priorityClass);
+          }
+
           if (twillPreparer instanceof StatefulTwillPreparer) {
             int diskSize = cConf.getInt(Constants.Preview.CONTAINER_DISK_SIZE_GB);
             twillPreparer = ((StatefulTwillPreparer) twillPreparer)

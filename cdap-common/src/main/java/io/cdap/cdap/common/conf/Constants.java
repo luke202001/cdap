@@ -349,6 +349,7 @@ public final class Constants {
     public static final String CONTAINER_CPU_MULTIPLIER = "preview.runner.container.cpu.multiplier";
     public static final String CONTAINER_MEMORY_MULTIPLIER = "preview.runner.container.memory.multiplier";
     public static final String CONTAINER_HEAP_RESERVED_RATIO = "preview.runner.container.java.heap.memory.ratio";
+    public static final String CONTAINER_PRIORITY_CLASS_NAME = "preview.runner.container.priority.class.name";
   }
 
   /**

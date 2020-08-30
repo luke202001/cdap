@@ -139,6 +139,7 @@ class KubeTwillPreparer implements TwillPreparer, StatefulTwillPreparer {
   private final TwillSpecification twillSpec;
   private final String resourcePrefix;
   private final Map<String, String> extraLabels;
+  private String schedulerQueue;
 
   KubeTwillPreparer(MasterEnvironmentContext masterEnvContext, ApiClient apiClient, String kubeNamespace,
                     PodInfo podInfo, TwillSpecification spec, RunId twillRunId, Location appLocation,
@@ -208,8 +209,8 @@ class KubeTwillPreparer implements TwillPreparer, StatefulTwillPreparer {
   }
 
   @Override
-  public TwillPreparer setSchedulerQueue(String name) {
-    // no-op
+  public TwillPreparer setSchedulerQueue(String schedulerQueue) {
+    this.schedulerQueue = schedulerQueue;
     return this;
   }
 
@@ -701,7 +702,11 @@ class KubeTwillPreparer implements TwillPreparer, StatefulTwillPreparer {
     // Add all environments for the runnable
     environs.putAll(environments.get(runnableName));
 
-    return new V1PodSpecBuilder()
+    V1PodSpecBuilder podSpecBuilder = new V1PodSpecBuilder();
+    if (schedulerQueue != null) {
+      podSpecBuilder = podSpecBuilder.withPriorityClassName(schedulerQueue);
+    }
+    return podSpecBuilder
       .withServiceAccountName(podInfo.getServiceAccountName())
       .withRuntimeClassName(podInfo.getRuntimeClassName())
       .addAllToVolumes(podInfo.getVolumes())
